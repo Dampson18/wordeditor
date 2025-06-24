@@ -3,217 +3,502 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colorful Split Screen Text Editor</title>
+    <title>Advanced Web Word Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Base Styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #e0f7fa;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
             color: #333;
-            padding: 20px;
+            padding: 0;
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
+
+        /* Header / Title */
+        h1 {
+            font-family: 'Merriweather', serif;
+            color: #2c3e50; /* Dark blue-gray */
+            text-align: center;
+            margin: 20px 0 10px;
+            font-size: 2.2em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Toolbar Styling */
         .toolbar {
-            margin-bottom: 20px;
+            background-color: #ffffff; /* White toolbar background */
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-wrap: wrap;
-            background-color: #80deea;
-            padding: 10px;
-            border-radius: 8px;
+            gap: 8px; /* Spacing between button groups/elements */
+            justify-content: center;
+            align-items: center;
         }
-        .toolbar button, .toolbar select, .toolbar input[type="color"] {
-            background-color: #00796b;
+
+        .toolbar-group {
+            display: flex;
+            gap: 4px; /* Tighter spacing within a group */
+            border-right: 1px solid #e0e0e0; /* Separator between groups */
+            padding-right: 10px;
+            margin-right: 6px;
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .toolbar button,
+        .toolbar select,
+        .toolbar input[type="color"],
+        .toolbar input[type="file"] { /* Style file input label */
+            background-color: #4CAF50; /* Primary green */
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s ease;
+            display: flex; /* For icons */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar button i, .toolbar a i { /* Style icons */
             margin-right: 5px;
-            margin-bottom: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
         }
-        .toolbar button:hover, .toolbar select:hover, .toolbar input[type="color"]:hover {
-            background-color: #004d40;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+
+        .toolbar button:hover,
+        .toolbar select:hover,
+        .toolbar input[type="color"]:hover,
+        .toolbar label.file-upload:hover { /* Hover for file upload label */
+            background-color: #43a047; /* Darker green on hover */
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
         }
-        .toolbar button:active, .toolbar select:active, .toolbar input[type="color"]:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        
+        .toolbar button:active,
+        .toolbar select:active,
+        .toolbar input[type="color"]:active,
+        .toolbar label.file-upload:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        #container {
+
+        .toolbar select {
+            padding-right: 25px; /* Space for dropdown arrow */
+            appearance: none; /* Hide default arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.1l-117.7%20117.3c-4.3%204.3-11.2%204.3-15.5%200L5.4%2069.1c-4.3-4.3-11.2-4.3-15.5%200L0%2073.4c-4.3%204.3-4.3%2011.2%200%2015.5l145%20145c4.3%204.3%2011.2%204.3%2015.5%200l145-145c4.3-4.3%204.3-11.2%200-15.5l-5.4-5.4z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 10px;
+        }
+
+        .toolbar input[type="color"] {
+            padding: 6px; /* Adjust padding for color input */
+            width: 40px; /* Specific width for color picker */
+            height: 36px; /* Specific height for color picker */
+            cursor: pointer;
+            background-color: #f8f8f8; /* Light background for color input */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Hidden file input, styled by its label */
+        input[type="file"] {
+            display: none;
+        }
+
+        label.file-upload {
+            background-color: #2196F3; /* Blue for file operations */
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s ease;
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-top: 20px;
-            flex-grow: 1;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+        label.file-upload:hover {
+            background-color: #1976D2;
+        }
+
+        /* Main Container for Editor & Preview */
+        #main-content {
+            display: flex;
+            justify-content: center; /* Center content horizontally */
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1;
+            align-items: stretch; /* Make children fill available height */
+            box-sizing: border-box;
+            max-width: 1400px; /* Limit overall width */
+            margin: 0 auto; /* Center the main content area */
+        }
+
         #editor-container, #preview-container {
-            width: 49%; /* Increased width for better spacing */
-            border: 1px solid #009688;
+            flex: 1; /* Both take equal width */
+            min-width: 300px; /* Minimum width for responsiveness */
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
             background-color: #ffffff;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Hide overflow within containers */
         }
+
+        .panel-header {
+            background-color: #f8f8f8;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 500;
+            color: #555;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
         #editor {
             width: 100%;
-            height: 400px; /* Increased height for more space */
+            flex-grow: 1; /* Takes remaining height */
             border: none;
             outline: none;
-            resize: none;
+            resize: none; /* No manual resize */
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
+            padding: 15px;
+            box-sizing: border-box;
+            word-wrap: break-word; /* Ensure long words wrap */
+            overflow-y: auto; /* Scroll for content */
+            min-height: 300px; /* Minimum height for editor */
         }
-        #preview-container {
+
+        #preview-content { /* Renamed for clarity */
+            flex-grow: 1; /* Takes remaining height */
+            padding: 15px;
             overflow-y: auto;
-            height: 400px; /* Increased height for more space */
+            min-height: 300px; /* Minimum height for preview */
+            word-wrap: break-word; /* Ensure long words wrap */
+            color: #444; /* Slightly darker text for preview */
         }
-        .button-container {
+
+        /* Status Bar */
+        .status-bar {
+            background-color: #e9ebee; /* Light gray */
+            color: #555;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
             display: flex;
-            justify-content: center;
-            margin-top: 20px;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; /* Sticky to bottom */
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 100; /* Ensure it stays on top */
         }
-        .button-container button {
-            background-color: #ff4081;
-            margin: 0 10px;
-            padding: 10px 15px;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+
+        .status-item {
+            margin-right: 15px;
         }
-        .button-container button:hover {
-            background-color: #c51162;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        .status-item:last-child {
+            margin-right: 0;
         }
-        .button-container button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        @media (max-width: 600px) {
-            #container {
-                flex-direction: column; /* Stack editor and preview vertically */
-                align-items: center;
-            }
-            #editor-container, #preview-container {
-                width: 100%;
-                margin: 10px 0;
-            }
-            #editor {
-                height: 250px; /* Adjusted height for smaller screens */
-            }
-        }
+
+        /* Footer */
         footer {
             text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 14px;
-            color: #00796b;
-            background-color: #80deea;
-            border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            font-size: 0.85em;
+            color: #777;
+            background-color: #f8f8f8;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto; /* Pushes footer to the bottom */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            #main-content {
+                flex-direction: column; /* Stack editor and preview vertically */
+                align-items: center;
+                padding: 15px;
+            }
+            #editor-container, #preview-container {
+                width: 100%; /* Full width on smaller screens */
+                max-width: 600px; /* Limit width even when stacked */
+                margin-bottom: 20px; /* Space between stacked panels */
+            }
+            .toolbar {
+                padding: 10px;
+                gap: 5px;
+            }
+            .toolbar button, .toolbar select, .toolbar label.file-upload {
+                font-size: 0.9em;
+                padding: 6px 10px;
+            }
+            .toolbar button i, .toolbar a i {
+                margin-right: 3px;
+            }
+            .toolbar-group {
+                border-right: none; /* No vertical separator on small screens */
+                padding-right: 0;
+                margin-right: 0;
+                border-bottom: 1px solid #e0e0e0; /* Horizontal separator */
+                padding-bottom: 5px;
+                margin-bottom: 5px;
+            }
+            .toolbar-group:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .toolbar {
+                justify-content: space-around; /* Distribute buttons */
+            }
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+            }
+            .status-item {
+                margin-bottom: 5px;
+                margin-right: 0;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="toolbar">
-    <button onclick="formatText('bold')">Bold</button>
-    <button onclick="formatText('italic')">Italic</button>
-    <button onclick="formatText('underline')">Underline</button>
-    <button onclick="clearFormatting()">Clear Formatting</button>
-    <select onchange="changeFontSize(this.value)">
-        <option value="">Font Size</option>
-        <option value="1">Small</option>
-        <option value="3">Normal</option>
-        <option value="5">Large</option>
-        <option value="7">Extra Large</option>
-    </select>
-    <button onclick="formatText('justifyLeft')">Left</button>
-    <button onclick="formatText('justifyCenter')">Center</button>
-    <button onclick="formatText('justifyRight')">Right</button>
-    <input type="color" id="colorPicker" onchange="changeColor(this.value)" />
-</div>
+    <h1><i class="fas fa-file-word"></i> Advanced Web Editor</h1>
 
-<div id="container">
-    <div id="editor-container">
-        <div contenteditable="true" id="editor" oninput="updatePreview()"></div>
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button title="New Document" onclick="newDocument()"><i class="fas fa-file"></i> New</button>
+            <label for="uploadFile" class="file-upload" title="Upload Document"><i class="fas fa-upload"></i> Upload</label>
+            <input type="file" id="uploadFile" accept=".txt, .html" onchange="uploadDocument(event)">
+            <button title="Download Document" onclick="downloadDocument()"><i class="fas fa-download"></i> Download</button>
+        </div>
+
+        <div class="toolbar-group">
+            <button title="Bold" onclick="formatText('bold')"><i class="fas fa-bold"></i></button>
+            <button title="Italic" onclick="formatText('italic')"><i class="fas fa-italic"></i></button>
+            <button title="Underline" onclick="formatText('underline')"><i class="fas fa-underline"></i></button>
+            <button title="Strikethrough" onclick="formatText('strikeThrough')"><i class="fas fa-strikethrough"></i></button>
+            <button title="Clear Formatting" onclick="clearFormatting()"><i class="fas fa-eraser"></i></button>
+        </div>
+
+        <div class="toolbar-group">
+            <select title="Font Size" onchange="changeFontSize(this.value)">
+                <option value="">Size</option>
+                <option value="1">Small</option>
+                <option value="2">Normal</option>
+                <option value="3" selected>Medium</option>
+                <option value="4">Large</option>
+                <option value="5">X-Large</option>
+                <option value="6">XX-Large</option>
+                <option value="7">Huge</option>
+            </select>
+            <select title="Font Family" onchange="changeFontFamily(this.value)">
+                <option value="">Font</option>
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Roboto, sans-serif" selected>Roboto</option>
+                <option value="Merriweather, serif">Merriweather</option>
+            </select>
+        </div>
+
+        <div class="toolbar-group">
+            <button title="Align Left" onclick="formatText('justifyLeft')"><i class="fas fa-align-left"></i></button>
+            <button title="Align Center" onclick="formatText('justifyCenter')"><i class="fas fa-align-center"></i></button>
+            <button title="Align Right" onclick="formatText('justifyRight')"><i class="fas fa-align-right"></i></button>
+            <button title="Justify" onclick="formatText('justifyFull')"><i class="fas fa-align-justify"></i></button>
+        </div>
+
+        <div class="toolbar-group">
+            <button title="Unordered List" onclick="formatText('insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+            <button title="Ordered List" onclick="formatText('insertOrderedList')"><i class="fas fa-list-ol"></i></button>
+            <button title="Insert Link" onclick="insertLink()"><i class="fas fa-link"></i></button>
+        </div>
+
+        <div class="toolbar-group">
+            <input type="color" id="foreColorPicker" title="Text Color" onchange="changeColor(this.value, 'foreColor')" value="#333333">
+            <input type="color" id="backColorPicker" title="Highlight Color" onchange="changeColor(this.value, 'backColor')" value="#ffff00">
+        </div>
+
+        <div class="toolbar-group">
+            <button title="Undo" onclick="formatText('undo')"><i class="fas fa-undo"></i></button>
+            <button title="Redo" onclick="formatText('redo')"><i class="fas fa-redo"></i></button>
+        </div>
     </div>
 
-    <div id="preview-container">
-        <h3>Preview</h3>
-        <div id="preview"></div>
+    <div id="main-content">
+        <div id="editor-container">
+            <div class="panel-header">Editor</div>
+            <div contenteditable="true" id="editor" oninput="updatePreviewAndStatus()">Type your document here...</div>
+        </div>
+
+        <div id="preview-container">
+            <div class="panel-header">Preview</div>
+            <div id="preview-content"></div>
+        </div>
     </div>
-</div>
 
-<div class="button-container">
-    <button onclick="copyText()">Copy</button>
-    <button onclick="pasteText()">Paste</button>
-</div>
+    <div class="status-bar">
+        <span class="status-item">Word Count: <span id="wordCount">0</span></span>
+        <span class="status-item">Character Count: <span id="charCount">0</span></span>
+    </div>
 
-<footer>
-    Copyright Kelvin Dampson
-</footer>
+    <footer>
+        &copy; 2024 Kelvin Dampson. All rights reserved.
+    </footer>
 
-<script>
-    function formatText(command) {
-        document.execCommand(command, false, null);
-        document.getElementById('editor').focus();
-        updatePreview();
-    }
-
-    function changeColor(color) {
-        document.execCommand('foreColor', false, color);
-        document.getElementById('editor').focus();
-        updatePreview();
-    }
-
-    function changeFontSize(size) {
-        if (size) {
-            document.execCommand('fontSize', false, size);
-        }
-        document.getElementById('editor').focus();
-        updatePreview();
-    }
-
-    function clearFormatting() {
-        document.execCommand('removeFormat', false, null);
-        document.getElementById('editor').focus();
-        updatePreview();
-    }
-
-    function updatePreview() {
-        const editorContent = document.getElementById('editor').innerHTML;
-        document.getElementById('preview').innerHTML = editorContent;
-    }
-
-    function copyText() {
+    <script>
         const editor = document.getElementById('editor');
-        editor.focus();
-        const text = editor.innerText || editor.textContent;
-        
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Text copied to clipboard!');
-        }).catch(err => {
-            alert('Failed to copy text: ' + err);
-        });
-    }
+        const previewContent = document.getElementById('preview-content');
+        const wordCountSpan = document.getElementById('wordCount');
+        const charCountSpan = document.getElementById('charCount');
 
-    function pasteText() {
-        navigator.clipboard.readText().then(text => {
-            const editor = document.getElementById('editor');
+        // Initial update for editor and preview content
+        editor.innerHTML = `
+            <p>Welcome to your <strong>Advanced Web Editor</strong>!</p>
+            <p>You can <i>type</i> and <u>format</u> your text here. Try using the toolbar above to apply different styles.</p>
+            <ul>
+                <li>Use bold, italic, underline, and strikethrough.</li>
+                <li>Change font size and family.</li>
+                <li>Adjust text alignment.</li>
+                <li>Create lists.</li>
+            </ul>
+            <p style="text-align: center;">This is a <span style="color: #ff0000;">center-aligned</span> paragraph with <span style="background-color: #00ff00;">highlighted</span> text.</p>
+            <p style="text-align: right;">This is a right-aligned paragraph.</p>
+            <p>Feel free to <a href="https://www.google.com" target="_blank">insert links</a> and explore!</p>
+        `;
+        updatePreviewAndStatus(); // Call on load to populate initial content
+
+        function formatText(command) {
+            document.execCommand(command, false, null);
             editor.focus();
-            document.execCommand('insertText', false, text);
-            updatePreview();
-        }).catch(err => {
-            alert('Failed to paste text: ' + err);
+            updatePreviewAndStatus();
+        }
+
+        function changeColor(color, type) {
+            document.execCommand(type, false, color);
+            editor.focus();
+            updatePreviewAndStatus();
+        }
+
+        function changeFontSize(size) {
+            if (size) {
+                document.execCommand('fontSize', false, size);
+            }
+            editor.focus();
+            updatePreviewAndStatus();
+        }
+
+        function changeFontFamily(fontFamily) {
+            if (fontFamily) {
+                document.execCommand('fontName', false, fontFamily);
+            }
+            editor.focus();
+            updatePreviewAndStatus();
+        }
+
+        function clearFormatting() {
+            document.execCommand('removeFormat', false, null);
+            document.execCommand('formatBlock', false, 'div'); // Reset block level elements
+            editor.focus();
+            updatePreviewAndStatus();
+        }
+
+        function insertLink() {
+            const url = prompt('Enter the URL:', 'https://');
+            if (url && url !== 'https://') {
+                document.execCommand('createLink', false, url);
+            }
+            editor.focus();
+            updatePreviewAndStatus();
+        }
+
+        function updatePreviewAndStatus() {
+            // Update preview
+            previewContent.innerHTML = editor.innerHTML;
+
+            // Update word and character count
+            const textContent = editor.innerText || editor.textContent;
+            const words = textContent.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const chars = textContent.length;
+
+            wordCountSpan.textContent = words;
+            charCountSpan.textContent = chars;
+        }
+
+        function newDocument() {
+            if (confirm("Are you sure you want to create a new document? All unsaved changes will be lost.")) {
+                editor.innerHTML = '';
+                updatePreviewAndStatus();
+                editor.focus();
+            }
+        }
+
+        function downloadDocument() {
+            const fileName = prompt("Enter file name (e.g., my_document.html):", "document.html");
+            if (fileName) {
+                const content = editor.innerHTML;
+                const blob = new Blob([content], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }
+        }
+
+        function uploadDocument(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editor.innerHTML = e.target.result;
+                    updatePreviewAndStatus();
+                    alert('Document loaded successfully!');
+                };
+                reader.onerror = function(e) {
+                    alert('Error loading file: ' + e.target.error.name);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Initialize editor content and preview on page load
+        document.addEventListener('DOMContentLoaded', () => {
+             updatePreviewAndStatus();
         });
-    }
-</script>
+    </script>
 
 </body>
 </html>
